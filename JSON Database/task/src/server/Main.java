@@ -11,8 +11,9 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-    private static final int port = 23456;
-    public  static String[] array = new String[1000];
+    private static final int PORT = 23456;
+    public static String[] array = new String[1000];
+
     public static void main(String[] args) {
         // fill array with empty string
         Arrays.fill(array, "");
@@ -22,37 +23,38 @@ public class Main {
         int index = 0;
 
         try {
-            ServerSocket server = new ServerSocket(port);
+            ServerSocket server = new ServerSocket(PORT);
             System.out.println("Server started!");
             while (true) {
-                Socket client = server.accept();
 
+                Socket client = server.accept();
                 DataInputStream input = new DataInputStream(client.getInputStream());
                 DataOutputStream output = new DataOutputStream(client.getOutputStream());
                 type = input.readUTF();
-                index = Integer.parseInt(input.readUTF()) -1;
 
-                if (type.equals("exit")){
+                if (type.equals("exit")) {
+                    output.writeUTF("OK");
                     break;
                 }
+                index = Integer.parseInt(input.readUTF()) - 1;
 
-                switch (type){
+                switch (type) {
                     case "set":
                         text = input.readUTF();
-                        if (index >-1 && index <1000){
+                        if (index > -1 && index < 1000) {
                             array[index] = text;
                             output.writeUTF("OK");
                         }
                         break;
                     case "get":
-                        if (index >-1 && index < 100 && !array[index].isEmpty()){
+                        if (index > -1 && index < 1000 && !array[index].isEmpty()) {
                             output.writeUTF(array[index]);
                         } else {
                             output.writeUTF("ERROR");
                         }
                         break;
                     case "delete":
-                        if (index > -1 && index <100){
+                        if (index > -1 && index < 1000) {
                             array[index] = "";
                             output.writeUTF("OK");
                         } else {
@@ -65,6 +67,6 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
+
 }
