@@ -32,6 +32,7 @@ subprojects {
         implementation "com.beust:jcommander:1.78"
         implementation 'com.google.code.gson:gson:2.8.6'
         testImplementation 'com.github.hyperskill:hs-test:release-SNAPSHOT'
+        implementation 'org.json:json:20220924'
     }
 
     configurations.all {

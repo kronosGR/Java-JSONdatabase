@@ -3,3 +3,5 @@ content:
 - Threads as objects
 - Custom threads
 - Thread management
+- The Map interface
+- Declaring a method

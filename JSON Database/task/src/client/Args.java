@@ -6,19 +6,12 @@ public class Args {
 
     @Parameter(names = {"--type", "-t"}, description = "Type or request")
     String type;
-    @Parameter(names = {"--index", "-i"}, description = "Index of item in db")
-    int index;
 
-    @Parameter(names = {"--message", "-m"}, description = "Value to be saved")
+    @Parameter(names = {"--key", "-k"}, description = "Key")
+    String key;
+
+    @Parameter(names = {"--value", "-v"}, description = "Value")
     String value;
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     public String getType() {
         return type;
@@ -28,11 +21,19 @@ public class Args {
         this.type = type;
     }
 
-    public int getIndex() {
-        return index;
+    public String getKey() {
+        return key;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }
