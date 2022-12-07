@@ -1,0 +1,24 @@
+type: choice
+is_multiple_choice: false
+options:
+- text: Program exit after starting
+- text: Program will not run
+- text: No errors, the program will compile and run successfully
+- text: Undefined behaviour
+- text: Compilation error
+files:
+- name: src/Task.java
+  visible: true
+  text: |
+    // You can experiment here, it won’t be checked
+
+    public class Task {
+      public static void main(String[] args) {
+        // put your code here
+      }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/3408#comment
+status: Solved
+record: -1
+local_check: false

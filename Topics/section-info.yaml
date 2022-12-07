@@ -5,3 +5,11 @@ content:
 - Thread management
 - The Map interface
 - Declaring a method
+- Anonymous classes
+- Default methods
+- Method references
+- Functional interfaces
+- Thread synchronization
+- Executors
+- ThreadLocal
+- The main method

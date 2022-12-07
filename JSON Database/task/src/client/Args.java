@@ -13,6 +13,9 @@ public class Args {
     @Parameter(names = {"--value", "-v"}, description = "Value")
     String value;
 
+    @Parameter(names = {"--input", "-in"}, description = "Input file")
+    String filename;
+
     public String getType() {
         return type;
     }
@@ -35,5 +38,13 @@ public class Args {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }

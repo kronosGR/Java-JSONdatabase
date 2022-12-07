@@ -1,0 +1,38 @@
+<h2>ThreadLocal counter</h2>
+<p></p>
+<p>Look at the code below:</p>
+<pre><code class="language-java">public class Main {
+    private static final ThreadLocal&lt;Integer&gt; threadLocalCounter = new ThreadLocal&lt;&gt;();
+
+    public static void main(String[] args) throws InterruptedException {
+        class MyRunnable implements Runnable {
+
+            @Override
+            public void run() {
+                if (threadLocalCounter.get() != null) {
+                    threadLocalCounter.set(threadLocalCounter.get() + 1);
+                } else {
+                    threadLocalCounter.set(0);
+                }
+            }
+        };
+
+        Thread thread1 = new Thread(new MyRunnable(), "first_thread");
+        Thread thread2 = new Thread(new MyRunnable(), "second_thread");
+        Thread thread3 = new Thread(new MyRunnable(), "third_thread");
+
+        // first
+        thread1.start();
+        thread1.join();
+        // second
+        thread2.start();
+        thread2.join();
+        // third
+        thread3.start();
+        thread3.join();
+    }
+}
+</code></pre>
+<p>What value of <code class="language-java">threadLocalCounter</code> will each thread have?</p>
+<p>Example of answer:</p>
+<pre><code class="language-java">3 4 5</code></pre>
