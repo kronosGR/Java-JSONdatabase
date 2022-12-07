@@ -26,11 +26,6 @@ public class Main {
         DataInputStream input = new DataInputStream(socket.getInputStream());
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
-        Args arg = new Args();
-        JCommander.newBuilder().addObject(arg).build().parse(args);
-        type = arg.getType();
-        key = arg.getKey();
-        value = arg.getValue();
 
         start(socket, input, output);
         socket.close();
