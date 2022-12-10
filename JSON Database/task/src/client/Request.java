@@ -14,8 +14,39 @@ public class Request {
     String type;
     String key;
     String value;
-
     String filename;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
     public Request(String[] args) {
 
@@ -28,8 +59,6 @@ public class Request {
         filename = arg.getFilename();
     }
 
-
-
     public String toJSON(){
         if (filename != null){
             try {
@@ -40,11 +69,12 @@ public class Request {
             }
         }
 
-        Map<String, String> resMap = new LinkedHashMap<>();
-        resMap.put("type", type);
-        resMap.put("key", key);
-        resMap.put("value", value);
-        return new Gson().toJson(resMap);
+        Map<String, String> reqMap = new LinkedHashMap<>();
+        reqMap.put("type", type);
+        reqMap.put("key", key);
+        reqMap.put("value", value);
+        reqMap.put("filename", filename);
+        return new Gson().toJson(reqMap);
     }
 
     private String readFile() throws IOException{

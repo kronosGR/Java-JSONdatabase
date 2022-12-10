@@ -3,7 +3,7 @@ hyperskill_project:
   ide_files: https://stepik.org/media/attachments/lesson/210138/additional_files.json
   is_template_based: false
   use_ide: true
-update_date: Wed, 07 Dec 2022 10:12:01 UTC
+update_date: Thu, 08 Dec 2022 06:14:22 UTC
 stages:
 - id: 348
   step: 5490
@@ -160,6 +160,8 @@ topics:
     theory_id: 3746
   - title: Files
     theory_id: 3635
+  - title: Reading files
+    theory_id: 3636
   - title: Formatted output
     theory_id: 7046
   - title: Writing files
@@ -265,8 +267,6 @@ topics:
   - title: The Object class
     theory_id: 3596
   4:
-  - title: Reading files
-    theory_id: 3636
   - title: Method references
     theory_id: 3620
   - title: Functional interfaces
@@ -277,6 +277,8 @@ topics:
     theory_id: 3557
   - title: Executors
     theory_id: 4895
+  - title: ThreadLocal
+    theory_id: 23984
   - title: Anonymous classes
     theory_id: 11896
   - title: Default methods

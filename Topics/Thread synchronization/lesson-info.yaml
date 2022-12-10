@@ -1,3 +1,7 @@
 content:
 - Theory
 - Thread-safe account
+- Synchronized blocks
+- Synchronize the code
+- Threads executing methods
+- Countdown counter

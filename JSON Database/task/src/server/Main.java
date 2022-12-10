@@ -1,6 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.DataInput;
@@ -19,79 +21,27 @@ public class Main {
     private static final int PORT = 23456;
     private static Map<String, String> db = new HashMap<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        Gson gson = new Gson();
-        String inJson = "";
-        String outJson = "";
-        String text = "";
-        String index = "";
-        String type = "";
+        ServerSocket server = new ServerSocket(PORT);
+        JSONArray jsonArray = new JSONArray();
+        System.out.println("Server started!");
 
-        try {
-            ServerSocket server = new ServerSocket(PORT);
-            System.out.println("Server started!");
-            while (true) {
+        while (true) {
+            Socket socket = null;
 
-                Socket client = server.accept();
-                DataInputStream input = new DataInputStream(client.getInputStream());
-                DataOutputStream output = new DataOutputStream(client.getOutputStream());
+            try {
+                socket = server.accept();
+                DataInputStream input = new DataInputStream(socket.getInputStream());
+                DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
-                inJson = input.readUTF();
-                JSONObject obj = new JSONObject(inJson);
-                type = obj.getString("type");
+                Thread thread = new Handler(server, socket, jsonArray, input, output );
+                thread.start();
 
-                if (type.equals("exit")) {
-                    Map<String, String> exit = new HashMap<>();
-                    exit.put("response", "OK");
-                    outJson = gson.toJson(exit);
-                    output.writeUTF(outJson);
-                    break;
-                }
-
-                switch (type) {
-                    case "set":
-                        index = obj.getString("key");
-                        Map<String, String> set = new HashMap<>();
-                        text = obj.getString("value");
-
-                        db.put(index, text);
-                        set.put("response", "OK");
-                        outJson = gson.toJson(set);
-                        output.writeUTF(outJson);
-                        break;
-                    case "get":
-                        index = obj.getString("key");
-                        Map<String, String> get = new HashMap<>();
-                        if (db.containsKey(index)) {
-                            get.put("response", "OK");
-                            get.put("value", db.get(index));
-                        } else {
-                            get.put("response", "ERROR");
-                            get.put("reason", "No such key");
-                        }
-                        outJson = gson.toJson(get);
-                        output.writeUTF(outJson);
-                        break;
-                    case "delete":
-                        index = obj.getString("key");
-                        Map<String, String> delete = new HashMap<>();
-                        if (db.containsKey(index) && !db.get(index).equals("")) {
-                            db.remove(index);
-                            delete.put("response", "OK");
-                        } else {
-                            delete.put("response", "ERROR");
-                            delete.put("reason", "No such key");
-                        }
-                        outJson = gson.toJson(delete);
-                        output.writeUTF(outJson);
-                        break;
-                }
+            } catch (Exception e) {
+                server.close();
             }
-            server.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
-
 }
+
