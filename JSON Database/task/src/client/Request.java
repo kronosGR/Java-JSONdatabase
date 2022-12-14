@@ -59,11 +59,12 @@ public class Request {
         filename = arg.getFilename();
     }
 
-    public String toJSON(){
-        if (filename != null){
+    public String toJSON() {
+        if (filename != null) {
             try {
-                return readFile();
-            } catch (IOException e){
+                return readFile("C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\client\\data\\"+ filename);
+
+            } catch (IOException e) {
                 System.out.println("Cannot read file: " + e.getMessage());
                 System.exit(1);
             }
@@ -77,7 +78,7 @@ public class Request {
         return new Gson().toJson(reqMap);
     }
 
-    private String readFile() throws IOException{
+    private String readFile(String filename) throws IOException {
         return new String(Files.readAllBytes(Paths.get(filename)));
     }
 }

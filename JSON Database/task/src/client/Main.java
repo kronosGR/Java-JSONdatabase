@@ -19,9 +19,10 @@ public class Main {
 
         output.writeUTF(req.toJSON());
         System.out.println("Sent: " + req.toJSON());
+
+        // System.out.println(req.filename);
         System.out.println();
         System.out.println("Received: " + input.readUTF());
 
-        socket.close();
     }
 }

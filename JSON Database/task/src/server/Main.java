@@ -1,19 +1,12 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.Key;
-import java.sql.ClientInfoStatus;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +20,7 @@ public class Main {
         JSONArray jsonArray = new JSONArray();
         System.out.println("Server started!");
 
-        while (true) {
+        while (!server.isClosed()) {
             Socket socket = null;
 
             try {
