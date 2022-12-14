@@ -291,6 +291,442 @@ files:
         }
     }
   learner_created: false
+- name: src/client/data/testGet.json
+  visible: true
+  learner_created: true
+- name: src/server/Response.java
+  visible: true
+  text: |
+    package server;
+
+    import com.google.gson.Gson;
+
+    import java.util.LinkedHashMap;
+    import java.util.Map;
+
+    public class Response {
+        String res;
+        String reas;
+        String value;
+
+        public final static String RES_OK = "OK";
+        public final static String RES_ERROR = "ERROR";
+
+        public String getRes() {
+            return res;
+        }
+
+        public void setRes(String res) {
+            this.res = res;
+        }
+
+        public String getReas() {
+            return reas;
+        }
+
+        public void setReas(String reas) {
+            this.reas = reas;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String toJSON(){
+            Map<String, String> resMap = new LinkedHashMap<>();
+            resMap.put("response", res);
+            if (value != null){
+                resMap.put("value", value);
+            }
+            if (reas != null){
+                resMap.put("reason", reas);
+            }
+            return new Gson().toJson(resMap);
+        }
+    }
+  learner_created: true
+- name: src/server/Handler.java
+  visible: true
+  text: |
+    package server;
+
+    import client.Request;
+    import com.google.gson.Gson;
+    import org.json.simple.JSONArray;
+    import org.json.simple.JSONObject;
+    import org.json.simple.parser.JSONParser;
+    import org.json.simple.parser.ParseException;
+
+    import java.io.*;
+    import java.net.ServerSocket;
+    import java.net.Socket;
+    import java.util.Map;
+    import java.util.concurrent.locks.Lock;
+    import java.util.concurrent.locks.ReadWriteLock;
+    import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+    public class Handler extends Thread {
+
+        ServerSocket server;
+        Socket socket;
+        JSONArray jsonArray;
+        DataInputStream inputStream;
+        DataOutputStream outputStream;
+
+        Request request;
+        Response response;
+
+        boolean locked = false;
+
+        public Handler(ServerSocket server,
+                       Socket socket,
+                       JSONArray jsonArray,
+                       DataInputStream input,
+                       DataOutputStream output) {
+            this.server = server;
+            this.socket = socket;
+            this.jsonArray = jsonArray;
+            this.inputStream = input;
+            this.outputStream = output;
+        }
+
+        @Override
+        public void run() {
+            ReadWriteLock lock = new ReentrantReadWriteLock();
+            Lock rLock = lock.readLock();
+            Lock wLock = lock.writeLock();
+
+            while (!locked) {
+                try {
+                    request = new Gson().fromJson(inputStream.readUTF(), Request.class);
+                    response = new Response();
+
+                    try {
+                        switch (request.getType()) {
+                            case "get":
+                                rLock.lock();
+                                response.setValue(get(request.getKey()));
+                                rLock.unlock();
+                                break;
+                            case "set":
+                                wLock.lock();
+                                set(request.getKey(), request.getValue(), jsonArray, request.getFilename());
+                                wLock.unlock();
+                                break;
+                            case "delete":
+                                wLock.lock();
+                                delete(request.getKey(), request.getFilename());
+                                wLock.unlock();
+                                break;
+                            case "exit":
+                                response.setRes(Response.RES_OK);
+                                outputStream.writeUTF(response.toJSON());
+                                server.close();
+                                return;
+                            default:
+                                System.out.println("Bad Request");
+                        }
+                        response.setRes(Response.RES_OK);
+                    } catch (Exception e) {
+                        response.setRes(Response.RES_ERROR);
+                        response.setReas(e.getMessage());
+                    } finally {
+                        try {
+                            outputStream.writeUTF(response.toJSON());
+                            locked = true;
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                } catch (Exception e) {
+                    try {
+                        inputStream.close();
+                        outputStream.close();
+                        socket.close();
+                        return;
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private String get(String key) {
+            String res = null;
+            JSONParser jsonParser = new JSONParser();
+            Object object = new Object();
+            try (FileReader reader = new FileReader("C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\server\\data\\db.json")) {
+                object = jsonParser.parse(reader);
+                JSONArray list = (JSONArray) object;
+
+                for (int i = 0; i < list.size(); i++) {
+                    JSONObject tmp = (JSONObject) list.get(i);
+                    if (tmp.get("key").equals(key)) {
+                        return res = tmp.get("value").toString();
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            finally {
+                if (res == null) {
+                    throw new RuntimeException("No such key");
+                }
+            }
+
+            return null;
+        }
+
+        private void set(String key, String value, JSONArray list, String filename) {
+            boolean exists = false;
+            JSONArray values = new JSONArray();
+            Object obj = new Object();
+            try (FileReader reader = new FileReader("C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\server\\data\\db.json")) {
+                JSONParser parser = new JSONParser();
+                obj = parser.parse(reader);
+                if (obj.toString().length() == 0) {
+                    values = (JSONArray) obj;
+
+                    for (int i = 0; i < values.size(); i++) {
+                        JSONObject it = (JSONObject) values.get(i);
+                        if (it.get("key").toString().equals(key)) {
+                            it.put("value", value);
+                            exists = true;
+                        }
+                    }
+                } else {
+                    JSONObject obj2 = new JSONObject();
+                    obj2.put("key", key);
+                    obj2.put("value", value);
+                    values.add(obj2);
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            save(values, "C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\server\\data\\db.json");
+        }
+
+        private void delete(String key, String filename) {
+            JSONArray values = new JSONArray();
+            Integer pos = null;
+            boolean exists = false;
+
+            try (FileReader fr = new FileReader("C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\server\\data\\db.json")) {
+                JSONParser jsonParser = new JSONParser();
+                Object obj = jsonParser.parse(fr);
+                values = (JSONArray) obj;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < values.size(); i++) {
+                JSONObject tmp = (JSONObject) values.get(i);
+                if (tmp.get("key").toString().equals(key)) {
+                    pos = i;
+                }
+            }
+
+            JSONArray newValues = new JSONArray();
+            int size = values.size();
+            if (pos != null) {
+                for (int i = 0; i < size; i++) {
+                    if (i != pos) {
+                        newValues.add(values.get(i));
+                    }
+                }
+            } else {
+                throw new RuntimeException("No such key");
+            }
+            save(newValues, "C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\server\\data\\db.json");
+        }
+
+        private void save(JSONArray values, String filename) {
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(filename);
+                values.writeJSONString(values, writer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+  learner_created: true
+- name: src/client/Args.java
+  visible: true
+  text: |
+    package client;
+
+    import com.beust.jcommander.Parameter;
+
+    public class Args {
+
+        @Parameter(names = {"--type", "-t"}, description = "Type or request")
+        String type;
+
+        @Parameter(names = {"--key", "-k"}, description = "Key")
+        String key;
+
+        @Parameter(names = {"--value", "-v"}, description = "Value")
+        String value;
+
+        @Parameter(names = {"--input", "-in"}, description = "Input file")
+        String filename;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+    }
+  learner_created: true
+- name: src/client/Request.java
+  visible: true
+  text: |
+    package client;
+
+    import com.beust.jcommander.JCommander;
+    import com.google.gson.Gson;
+
+    import java.io.IOException;
+    import java.nio.file.Files;
+    import java.nio.file.Paths;
+    import java.util.LinkedHashMap;
+    import java.util.Map;
+
+    public class Request {
+
+        String type;
+        String key;
+        String value;
+        String filename;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+
+        public Request(String[] args) {
+
+            Args arg = new Args();
+            JCommander.newBuilder().addObject(arg).build().parse(args);
+
+            type = arg.getType();
+            key = arg.getKey();
+            value = arg.getValue();
+            filename = arg.getFilename();
+        }
+
+        public String toJSON() {
+            if (filename != null) {
+                try {
+                    return readFile("C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\client\\data\\"+ filename);
+
+                } catch (IOException e) {
+                    System.out.println("Cannot read file: " + e.getMessage());
+                    System.exit(1);
+                }
+            }
+
+            Map<String, String> reqMap = new LinkedHashMap<>();
+            reqMap.put("type", type);
+            reqMap.put("key", key);
+            reqMap.put("value", value);
+            reqMap.put("filename", filename);
+            return new Gson().toJson(reqMap);
+        }
+
+        private String readFile(String filename) throws IOException {
+            return new String(Files.readAllBytes(Paths.get(filename)));
+        }
+    }
+  learner_created: true
+- name: src/client/data/testSet.json
+  visible: true
+  learner_created: true
+- name: src/client/data/testDelete.json
+  visible: true
+  learner_created: true
+- name: src/server/data/db.json
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/5495#comment
 status: Unchecked
 record: -1
