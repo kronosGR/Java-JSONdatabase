@@ -1,7 +1,11 @@
 package client;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,11 +13,19 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 public class Request {
 
-    String type;
-    String key;
-    String value;
+    @Parameter(names = {"-t", "--type"}, description = "The type of the request")
+    private String type;
+
+    @Parameter(names = {"-k", "--key"}, description = "The key")
+    JsonElement key;
+
+    @Parameter(names = {"-v", "--value"}, description = "The value to add")
+    JsonElement value;
+
+    @Parameter(names = {"-in", "--input"}, description = "The file")
     String filename;
 
     public String getType() {
@@ -24,19 +36,19 @@ public class Request {
         this.type = type;
     }
 
-    public String getKey() {
+    public JsonElement getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(JsonElement key) {
         this.key = key;
     }
 
-    public String getValue() {
+    public JsonElement getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(JsonElement value) {
         this.value = value;
     }
 
@@ -48,37 +60,9 @@ public class Request {
         this.filename = filename;
     }
 
-    public Request(String[] args) {
+    public Request() {
 
-        Args arg = new Args();
-        JCommander.newBuilder().addObject(arg).build().parse(args);
-
-        type = arg.getType();
-        key = arg.getKey();
-        value = arg.getValue();
-        filename = arg.getFilename();
     }
 
-    public String toJSON() {
-        if (filename != null) {
-            try {
-                return readFile("C:\\Users\\geoel\\IdeaProjects\\JSON Database\\JSON Database\\task\\src\\client\\data\\"+ filename);
 
-            } catch (IOException e) {
-                System.out.println("Cannot read file: " + e.getMessage());
-                System.exit(1);
-            }
-        }
-
-        Map<String, String> reqMap = new LinkedHashMap<>();
-        reqMap.put("type", type);
-        reqMap.put("key", key);
-        reqMap.put("value", value);
-        reqMap.put("filename", filename);
-        return new Gson().toJson(reqMap);
-    }
-
-    private String readFile(String filename) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(filename)));
-    }
 }

@@ -727,6 +727,31 @@ files:
 - name: src/server/data/db.json
   visible: true
   learner_created: true
+- name: src/server/Core.java
+  visible: true
+  learner_created: true
+- name: src/server/Exceptions/EmptyFileException.java
+  visible: true
+  learner_created: true
+- name: src/server/Exceptions/NotFoundException.java
+  visible: true
+  learner_created: true
+- name: src/server/Exceptions/NoKeyException.java
+  visible: true
+  learner_created: true
+- name: src/server/Exceptions/BadRequestException.java
+  visible: true
+  learner_created: true
+- name: src/server/data/data.json
+  visible: true
+  learner_created: true
+- name: src/client/data/secondGetFile.json
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/5495#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
+    Academy</a> to continue learning.
+  time: Wed, 21 Dec 2022 11:26:08 UTC
 record: -1

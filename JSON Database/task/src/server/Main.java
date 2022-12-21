@@ -20,6 +20,8 @@ public class Main {
         JSONArray jsonArray = new JSONArray();
         System.out.println("Server started!");
 
+        Core core = Core.getInstance();
+
         while (!server.isClosed()) {
             Socket socket = null;
 
@@ -28,7 +30,7 @@ public class Main {
                 DataInputStream input = new DataInputStream(socket.getInputStream());
                 DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
-                Thread thread = new Handler(server, socket, jsonArray, input, output );
+                Thread thread = new Handler(server, socket,  input, output );
                 thread.start();
 
             } catch (Exception e) {

@@ -1,4 +1,6 @@
 package client;
+import com.beust.jcommander.JCommander;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,17 +14,20 @@ public class Main {
         Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
         System.out.println("Client started!");
 
-        Request req = new Request(args);
+        Args arg = new Args();
+        JCommander jc = new JCommander(arg);
+        jc.setProgramName("JSON Database");
+        JCommander.newBuilder().addObject(arg).build().parse(args);
 
         DataInputStream input = new DataInputStream(socket.getInputStream());
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
-        output.writeUTF(req.toJSON());
-        System.out.println("Sent: " + req.toJSON());
+        String request = arg.toJSON();
+        output.writeUTF(request);
+        System.out.println("Sent: " + request);
 
         // System.out.println(req.filename);
         System.out.println();
         System.out.println("Received: " + input.readUTF());
-
     }
 }
